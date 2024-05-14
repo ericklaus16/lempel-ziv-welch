@@ -23,6 +23,17 @@ int findIntegerDictionaryEquivalent(list<string> dictionary, string value){
     return -1;
 }
 
+string findStringEquivalentByIntegerInDictionary(list <string> dictionary, int index){
+    int counter = 256;
+    for(list<string>::iterator it = dictionary.begin(); it != dictionary.end(); it++){
+        if(counter == index){
+            return *it;
+        }
+        counter++;
+    }
+    return "";
+}
+
 void compressAscii(string compressable){
     cout << "Comprimindo " << compressable << " para ASCII: ";
     for(int i = 0; i < compressable.length(); i++){
@@ -77,4 +88,68 @@ void compressLZW(string compressable){
         cout << *it << " ";
     }
     cout << endl;
+}
+
+void descompressAscii(list<int> compressed){
+    cout << "Descomprimindo ASCII para: ";
+    for(list<int>::iterator it = compressed.begin(); it != compressed.end(); it++){
+        cout << (char) *it;
+    }
+    cout << endl;
+}
+
+void descompressLZW(list<int> compressed){
+    cout << "Descomprimindo para LZW: " << endl;
+    int dicionarioCount = 256;
+    list<string> saida;
+    list<string> dictionary;
+
+    string compressedString;
+
+    for(list<int>::iterator it = compressed.begin(); it != compressed.end(); it++){
+        int atual = *it;
+
+        if(atual > 255){
+            string novaSaida = findStringEquivalentByIntegerInDictionary(dictionary, atual);
+            // cout << novaSaida << endl;
+            saida.push_back(novaSaida);
+            int primeiroValor = *(compressed.begin());
+            dictionary.push_back(novaSaida + " " + to_string(primeiroValor));
+            continue;
+        }
+
+        if(next(it) != compressed.end()){
+            int proximo = *next(it);
+            string convertedValue = to_string(atual) + " " + to_string(proximo);
+            saida.push_back(to_string(atual));
+            dictionary.push_back(convertedValue);
+            // cout << "Adicionei a dupla " << convertedValue << " no dicionario" << endl;
+        } else {
+            saida.push_back(to_string(atual));
+        }
+    }
+
+    string stringFinal = "";
+    
+    for(list<string>::iterator it = saida.begin(); it != saida.end(); it++){
+        stringFinal += *it + " ";
+    }
+    
+    string delimiter = " ";
+    size_t pos = 0;
+    string token;
+    
+    while ((pos = stringFinal.find(delimiter)) != string::npos) {
+        token = stringFinal.substr(0, pos);
+        int ascii_value = stoi(token);
+        char character = static_cast<char>(ascii_value);
+        cout << ascii_value << " = " << character << endl;
+        stringFinal.erase(0, pos + delimiter.length());
+    }
+    
+    if(stringFinal != ""){
+        int ascii_value = stoi(stringFinal);
+        char character = static_cast<char>(ascii_value);
+        cout << ascii_value << " = " << character << endl;
+    }
 }
